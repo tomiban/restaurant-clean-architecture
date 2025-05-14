@@ -12,7 +12,6 @@ namespace Restaurant.API.Controllers;
 
 [Route("identity")]
 [Tags("Identity")]
-[Authorize]
 [ApiController]
 public class IdentityController(IMediator mediator) : ControllerBase
 {

@@ -18,7 +18,7 @@ builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 
-// --- Siembra de Base de Datos ---
+// --- Seed de Base de Datos ---
 // Obtiene un scope para resolver servicios con ámbito (scoped), como el seeder
 var scope = app.Services.CreateScope();
 var seeder = scope.ServiceProvider.GetRequiredService<IRestaurantSeeder>();
@@ -54,7 +54,6 @@ if (app.Environment.IsDevelopment())
 }
 
 // Establece una ruta base para los endpoints de la API (p. ej., todos los endpoints estarán bajo /api)
-// Nota: Esto parece redundante ya que MapControllers y MapGroup suelen manejar bien los prefijos.
 // Considera eliminarlo si no es estrictamente necesario o si causa problemas de enrutamiento.
 app.UsePathBase("/api");
 // Vuelve a ejecutar el enrutamiento después de cambiar la ruta base. Esto también podría ser redundante según las necesidades exactas.
