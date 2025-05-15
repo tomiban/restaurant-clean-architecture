@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
 using Restaurant.API.Middlewares;
 using Serilog;
@@ -9,7 +10,11 @@ public static class WebApplicationBuilderExtensions
 {
     public static void AddPresentation(this WebApplicationBuilder builder)
     {
-        builder.Services.AddControllers();
+        builder.Services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
 
         builder.Services.AddSwaggerGen(c =>
         {
@@ -29,6 +34,7 @@ public static class WebApplicationBuilderExtensions
                     []
                 }
             });
+            c.UseInlineDefinitionsForEnums();
         });
 
         builder.Services.AddEndpointsApiExplorer();

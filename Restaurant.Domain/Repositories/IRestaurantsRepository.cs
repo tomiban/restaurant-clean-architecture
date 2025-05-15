@@ -1,11 +1,17 @@
+using Restaurant.Domain.Constants;
+
 namespace Restaurant.Domain.Repositories;
 
 public interface IRestaurantsRepository
 {
     Task<IEnumerable<Entities.Restaurant>> GetAllAsync();
 
-    Task<IEnumerable<Entities.Restaurant>> GetAllMatchingAsync(string? searchPhrase = null, int? pageSize = null,
-        int? pageNumber = null);
+    Task<(List<Entities.Restaurant> restaurants, int totalCount)> GetAllMatchingAsync(string? searchPhrase,
+        int? pageSize,
+        int? pageNumber,
+        string? sortBy,
+        SortDirection? sortDirection
+    );
 
     Task<Entities.Restaurant> GetByIdAsync(int id);
     Task<int> CreateAsync(Entities.Restaurant? restaurant);

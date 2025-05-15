@@ -1,4 +1,6 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Restaurant.Domain.Constants;
 using Restaurant.Domain.Repositories;
 using Restaurant.Infrastructure.Persistence;
 
@@ -14,19 +16,45 @@ public class RestaurantsRepository(RestaurantsDbContext dbContext) : IRestaurant
         return restaurants;
     }
 
-    public async Task<IEnumerable<Domain.Entities.Restaurant>> GetAllMatchingAsync(string? searchPhrase = null,
-        int? pageNumber = null, int? pageSize = null)
+
+    public async Task<(List<Domain.Entities.Restaurant> restaurants, int totalCount)> GetAllMatchingAsync(
+        string? searchPhrase, int? pageSize, int? pageNumber, string? sortBy,
+        SortDirection? sortDirection)
     {
         var searchPhraseLower = searchPhrase?.ToLower();
-        var restaurants = await dbContext.Restaurants.Where(r =>
-                searchPhraseLower == null ||
-                (r.Name.ToLower().Contains(searchPhraseLower) ||
-                 r.Description.ToLower().Contains(searchPhraseLower)))
-            .Skip((int)(pageSize * (pageNumber - 1))!)
-            .Take((int)pageSize)
-            .ToListAsync();
+        var baseQuery = dbContext.Restaurants.Where(r =>
+            searchPhraseLower == null ||
+            (r.Name.ToLower().Contains(searchPhraseLower) ||
+             r.Description.ToLower().Contains(searchPhraseLower)));
 
-        return restaurants;
+        var totalCount = await baseQuery.CountAsync();
+
+        if (sortBy != null && sortDirection != null)
+        {
+            var columnsSelector = new Dictionary<string, Expression<Func<Domain.Entities.Restaurant, object>>>()
+            {
+                { nameof(Domain.Entities.Restaurant.Name), r => r.Name },
+                { nameof(Domain.Entities.Restaurant.Description), r => r.Description },
+                { nameof(Domain.Entities.Restaurant.Category), r => r.Category },
+            };
+            if (columnsSelector.TryGetValue(sortBy, out var selectedColumn))
+            {
+                baseQuery = sortDirection == SortDirection.Ascending
+                    ? baseQuery.OrderBy(selectedColumn)
+                    : baseQuery.OrderByDescending(selectedColumn);
+            }
+        }
+
+        if (pageSize.HasValue && pageNumber.HasValue && pageSize.Value > 0 && pageNumber.Value > 0)
+        {
+            baseQuery = baseQuery
+                .Skip(pageSize.Value * (pageNumber.Value - 1))
+                .Take(pageSize.Value);
+        }
+
+        var restaurants = await baseQuery.ToListAsync();
+
+        return (restaurants, totalCount);
     }
 
     public async Task<Domain.Entities.Restaurant?> GetByIdAsync(int id)
