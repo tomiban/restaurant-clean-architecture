@@ -42,6 +42,8 @@ public static class ServiceCollectionExtensions
         services.AddAuthorizationBuilder()
             .AddPolicy(PolicyNames.HasNationality,
                 builder => builder.RequireClaim(ClaimTypes.Nationality, ["Argentina"]))
-            .AddPolicy(PolicyNames.IsOfLegalAge, builder => builder.AddRequirements(new MinimumAgeRequirement(20)));
+            .AddPolicy(PolicyNames.IsOfLegalAge, builder => builder.AddRequirements(new MinimumAgeRequirement(20)))
+            .AddPolicy(PolicyNames.MinimumRestaurantCreated,
+                builder => builder.AddRequirements(new CreatedMultipleRequirement(1)));
     }
 }

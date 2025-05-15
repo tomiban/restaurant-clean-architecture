@@ -4,6 +4,7 @@ public static class PolicyNames
 {
     public const string HasNationality = "HasNationality";
     public const string IsOfLegalAge = "IsOfLegalAge";
+    public const string MinimumRestaurantCreated = "MinimumRestaurantCreated";
 }
 
 public static class ClaimTypes
