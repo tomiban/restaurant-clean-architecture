@@ -26,6 +26,13 @@ public class ErrorHandlingMiddleware(
             await context.Response.WriteAsJsonAsync(new { Message = unauthorized.Message });
             logger.LogWarning(unauthorized.Message);
         }
+
+        catch (ForbidException forbid)
+        {
+            context.Response.StatusCode = 403;
+            await context.Response.WriteAsJsonAsync(new { Message = "Access forbbiden" });
+            logger.LogWarning(forbid.Message);
+        }
         catch (Exception ex)
         {
             // En desarrollo
