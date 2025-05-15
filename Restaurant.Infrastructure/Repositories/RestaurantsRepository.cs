@@ -14,6 +14,21 @@ public class RestaurantsRepository(RestaurantsDbContext dbContext) : IRestaurant
         return restaurants;
     }
 
+    public async Task<IEnumerable<Domain.Entities.Restaurant>> GetAllMatchingAsync(string? searchPhrase = null,
+        int? pageNumber = null, int? pageSize = null)
+    {
+        var searchPhraseLower = searchPhrase?.ToLower();
+        var restaurants = await dbContext.Restaurants.Where(r =>
+                searchPhraseLower == null ||
+                (r.Name.ToLower().Contains(searchPhraseLower) ||
+                 r.Description.ToLower().Contains(searchPhraseLower)))
+            .Skip((int)(pageSize * (pageNumber - 1))!)
+            .Take((int)pageSize)
+            .ToListAsync();
+
+        return restaurants;
+    }
+
     public async Task<Domain.Entities.Restaurant?> GetByIdAsync(int id)
     {
         var restaurant = await dbContext.Restaurants
