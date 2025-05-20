@@ -1,9 +1,9 @@
-name: Build and deploy container app to Azure Web App - restaurant-dev-api
+name: CD - Deploy to Azure
 
 on:
   push:
     branches:
-      - master
+      - main
   workflow_dispatch:
 
 env:
@@ -32,7 +32,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v3
         with:
-          context: .                           # 👈 Contexto debe ser la raíz del repo
+          context: . # 👈 Contexto debe ser la raíz del repo
           file: ./src/Restaurant.API/Dockerfile
           push: true
           tags: ${{ env.AZURE_CONTAINER_REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
@@ -44,12 +44,12 @@ jobs:
       name: Development
 
     steps:
-      - name: 'Deploy to Azure Web App using Azure Login and Azure CLI'
+      - name: "Deploy to Azure Web App using Azure Login and Azure CLI"
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 'Deploy container image'
+      - name: "Deploy container image"
         run: |
           az webapp config container set \
             --name ${{ env.AZURE_WEBAPP_NAME }} \
