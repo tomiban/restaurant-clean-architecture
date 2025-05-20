@@ -1,0 +1,23 @@
+### Get all restaurants
+GET {{API_HostAddress}}/api/restaurants
+Accept: application/json
+
+### Get Restaurant By Id
+GET {{API_HostAddress}}/api/restaurants/5
+
+
+### Create restaurant
+POST {{API_HostAddress}}/api/restaurants
+Content-Type: application/json
+
+{
+  "Name": "Toro y Pampa",
+  "Description": "Venite a comer, con toro y pampa es",
+  "HasDelivery": false,
+  "Category": "Parrillada",
+  "ContactEmail": "toroypampa@es.com",
+  "ContactNumber": "1810",
+  "City": "Pampa",
+  "Street": "Almafuerte 1810",
+  "PostalCode": "1810"
+}
