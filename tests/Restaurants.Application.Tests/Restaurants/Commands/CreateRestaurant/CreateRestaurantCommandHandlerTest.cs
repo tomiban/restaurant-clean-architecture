@@ -13,51 +13,39 @@ namespace Restaurants.Application.Tests.Restaurants.Commands.CreateRestaurant;
 [TestSubject(typeof(CreateRestaurantCommandHandler))]
 public class CreateRestaurantCommandHandlerTest
 {
-    private readonly Mock<ILogger<CreateRestaurantCommand>> _loggerMock;
-    private readonly Mock<IMapper> _mapperMock;
-    private readonly Mock<IRestaurantsRepository> _repositoryMock;
-    private readonly Mock<IUserContext> _userContextMock;
-
-    public CreateRestaurantCommandHandlerTest()
+    [Fact()]
+    public async Task Handle_ForValidCommand_ReturnsCreatedRestaurantId()
     {
-        _loggerMock = new Mock<ILogger<CreateRestaurantCommand>>();
-        _mapperMock = new Mock<IMapper>();
-        _repositoryMock = new Mock<IRestaurantsRepository>();
-        _userContextMock = new Mock<IUserContext>();
-    }
+        // arrange
+        var loggerMock = new Mock<ILogger<CreateRestaurantCommandHandler>>();
+        var mapperMock = new Mock<IMapper>();
 
-    [Fact]
-    public async Task Handle_ForValidCommand_ReturnsCreateRestaurantId()
-    {
-        // Arrange
-        var command = new CreateRestaurantCommand
-        {
-            Name = "Test Restaurant",
-            Description = "Test Description",
-            Category = "Italian",
-            HasDelivery = true,
-            ContactEmail = "test@example.com",
-            ContactNumber = "123456789",
-            City = "Test City",
-            Street = "Test Street",
-            PostalCode = "12345"
-        };
-
+        var command = new CreateRestaurantCommand();
         var restaurant = new Restaurant.Domain.Entities.Restaurant();
 
-        _repositoryMock.Setup(repo => repo.CreateAsync(It.IsAny<Restaurant.Domain.Entities.Restaurant>()))
+        mapperMock.Setup(m => m.Map<Restaurant.Domain.Entities.Restaurant>(command)).Returns(restaurant);
+
+        var restaurantRepositoryMock = new Mock<IRestaurantsRepository>();
+        restaurantRepositoryMock
+            .Setup(repo => repo.CreateAsync(It.IsAny<Restaurant.Domain.Entities.Restaurant>()))
             .ReturnsAsync(1);
-        _mapperMock.Setup(r => r.Map<Restaurant.Domain.Entities.Restaurant>(command)).Returns(restaurant);
+
+        var userContextMock = new Mock<IUserContext>();
+        var currentUser = new CurrentUser("owner-id", "test@test.com", [], null, null);
+        userContextMock.Setup(u => u.GetCurrentUser()).Returns(currentUser);
 
 
-        var commandHandler = new CreateRestaurantCommandHandler(_loggerMock.Object, _mapperMock.Object,
-            _repositoryMock.Object, _userContextMock.Object);
-        // Act
+        var commandHandler = new CreateRestaurantCommandHandler(loggerMock.Object,
+            mapperMock.Object,
+            restaurantRepositoryMock.Object,
+            userContextMock.Object);
+
+        // act
         var result = await commandHandler.Handle(command, CancellationToken.None);
 
-        // Assert
+        // assert
         result.Should().Be(1);
         restaurant.OwnerId.Should().Be("owner-id");
-        _repositoryMock.Verify(r => r.CreateAsync(restaurant));
+        restaurantRepositoryMock.Verify(r => r.CreateAsync(restaurant), Times.Once);
     }
 }

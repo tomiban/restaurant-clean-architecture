@@ -14,6 +14,7 @@ using Restaurant.API.Controllers;
 using Restaurant.Application.Restaurants.Dtos;
 using Restaurant.Domain.Constants;
 using Restaurant.Domain.Repositories;
+using Restaurant.Infrastructure.Seeders;
 using Xunit;
 
 namespace Restaurants.API.Tests.Controllers;
@@ -23,6 +24,7 @@ public class RestaurantControllerTest : IClassFixture<WebApplicationFactory<Prog
 {
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> _factory;
+    private readonly Mock<IRestaurantSeeder> _restaurantSeederMock = new();
     private readonly Mock<IRestaurantsRepository> _restaurantsRepositoryMock = new();
 
     public RestaurantControllerTest(WebApplicationFactory<Program> factory)
