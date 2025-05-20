@@ -88,4 +88,7 @@ finally
 
 public partial class Program
 {
-} // Para pruebas unitarias
+    protected Program()
+    {
+    }
+}

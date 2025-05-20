@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Moq;
+using Restaurant.API;
 using Restaurant.API.Controllers;
 using Restaurant.Application.Restaurants.Dtos;
 using Restaurant.Domain.Constants;
@@ -24,9 +25,8 @@ public class RestaurantControllerTest : IClassFixture<WebApplicationFactory<Prog
 {
     private readonly HttpClient _client;
     private readonly WebApplicationFactory<Program> _factory;
-    private readonly Mock<IRestaurantSeeder> _restaurantSeederMock = new();
     private readonly Mock<IRestaurantsRepository> _restaurantsRepositoryMock = new();
-
+    private readonly Mock<IRestaurantSeeder> _restaurantSeederMock = new();
     public RestaurantControllerTest(WebApplicationFactory<Program> factory)
     {
         _factory = factory.WithWebHostBuilder(builder =>
@@ -36,6 +36,8 @@ public class RestaurantControllerTest : IClassFixture<WebApplicationFactory<Prog
                 services.AddSingleton<IPolicyEvaluator, FakePolicyEvaluator>();
                 services.Replace(ServiceDescriptor.Scoped(typeof(IRestaurantsRepository),
                     _ => _restaurantsRepositoryMock.Object));
+                services.Replace(ServiceDescriptor.Scoped(typeof(IRestaurantSeeder),
+                    _ => _restaurantSeederMock.Object));
             });
         });
         _client = _factory.CreateClient();
